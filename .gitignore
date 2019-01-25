@@ -1,5 +1,7 @@
-# Ignore everything
+
 src/*
 artifacts/*
+
+!src/.gitkeep 
 
 .idea
