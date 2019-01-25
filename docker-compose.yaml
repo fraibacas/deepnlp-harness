@@ -1,0 +1,16 @@
+version: "3.3"
+services:
+  deepnlp-ui-build:
+    build:
+      dockerfile: ./Dockerfile.deepnlp_ui
+      context: .
+    volumes:
+      - ./scripts:/opt/sparkcognition/scripts:ro
+      - ./src/deepnlp-ui:/opt/sparkcognition/deepnlp-ui:rw
+      - ./artifacts:/opt/sparkcognition/artifacts:rw
+    ports:
+      - "5001:5001"
+    entrypoint:
+      - /bin/bash
+      - -c 
+      - "/opt/sparkcognition/scripts/deepnlp_ui.sh ${DC_DEEPNLP_UI_ACTION}"

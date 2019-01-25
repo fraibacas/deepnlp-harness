@@ -1,0 +1,10 @@
+FROM centos:7
+
+RUN yum -y install https://mirror.pnl.gov/epel/7/x86_64/Packages/e/epel-release-7-11.noarch.rpm && yum update 
+RUN yum -y install npm make gcc gcc-c++ git
+RUN npm install -g yarn
+RUN curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.33.11/install.sh | bash
+RUN /bin/bash -c "source ~/.bashrc && nvm install v10.4.0 && nvm alias default v10.4.0"
+RUN /bin/bash -c "source ~/.bashrc && npm update && npm install -g @angular/cli"
+RUN /bin/bash -c "mkdir -p /opt/sparkcognition/deepnlp-ui"
+WORKDIR /opt/sparkcognition/deepnlp-ui
