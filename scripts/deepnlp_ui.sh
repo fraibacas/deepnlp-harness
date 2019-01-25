@@ -4,7 +4,7 @@ set -x
 
 DEEPNLP_UI_FOLDER=/opt/sparkcognition/deepnlp-ui/
 ARTIFACTS_FOLDER=/opt/sparkcognition/artifacts
-EVER_BUILT_MAKER_FILE=.deepnlp_ui_harness
+EVER_BUILT_MAKER_FILE=${ARTIFACTS_FOLDER}/.deepnlp_ui_built
 
 #---------------------------------------------------------------
 
