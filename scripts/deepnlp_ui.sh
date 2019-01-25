@@ -45,11 +45,14 @@ function run() {
 }
 
 
+function node_env() {
+	NVM_DIR="$HOME/.nvm"
+	[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+}
+
+
 #---------------------------------------------------------------
 
-
-NVM_DIR="$HOME/.nvm"
-[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
 
 if [ ! -d ${DEEPNLP_UI_FOLDER} ] || [ ! -d ${DEEPNLP_UI_FOLDER}/src ] ; then
 	echo "ERROR: could not find deepnlp-ui source folder"
@@ -58,14 +61,16 @@ fi
 
 case "$1" in
   "build")
+	node_env
     build
     generate_artifact
     ;;
   "run")
+	node_env
 	run
     ;;
   "clean")
-	run
+	clean
     ;;
   *)
     echo "Unknown option <$1>. Please tell me what to do :/"

@@ -1,6 +1,6 @@
 version: "3.3"
 services:
-  deepnlp-ui-build:
+  deepnlp-ui:
     build:
       dockerfile: ./Dockerfile.deepnlp_ui
       context: .
