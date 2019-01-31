@@ -1,25 +1,55 @@
 FROM centos:7
 
+ENV PYTHON_PACKAGES="\
+    numpy==1.14.3 \
+    pyspark==2.3.1 \
+    scipy==1.1.0 \
+    scikit-learn==0.20.1 \
+    pandas==0.23.4 \
+	psycopg2==2.7.1 \
+	redis==2.10.5 \
+	gunicorn==19.7.0 \
+	requests==2.13.0 \
+	msgpack==0.5.6 \
+	vaderSentiment==2.5 \
+	Flask-SQLAlchemy==2.3.2 \
+	Flask==1.0.2 \
+	sklearn==0.0 \
+	Flask-Script==2.0.5 \
+	gensim==3.6.0 \
+	google-compute-engine==2.8.3 \
+	spacy==2.0.12 \
+	Jinja2==2.10 \
+	flask-restplus==0.11.0 \
+	python-dateutil==2.7.3 \
+	word2number==1.1 \
+	Flask-Cors==3.0.2 \
+	tornado==5.1.1 \
+	pygraphviz==1.3.1 \
+"
 
 RUN yum -y install https://mirror.pnl.gov/epel/7/x86_64/Packages/e/epel-release-7-11.noarch.rpm && \
-    curl https://bintray.com/sbt/rpm/rpm | tee /etc/yum.repos.d/bintray-sbt-rpm.repo && \
-	yum -y update
+    curl https://bintray.com/sbt/rpm/rpm | tee /etc/yum.repos.d/bintray-sbt-rpm.repo
 
-
-RUN yum install -y sudo tar git libreoffice maven && \
+RUN yum -y update && \
+	yum install -y sudo tar git libreoffice maven && \
 	yum install -y gcc gcc-c++ && \
 	yum install -y python36 python36-devel python36-setuptools && \
 	yum install -y java-1.8.0-openjdk && \
 	yum install -y sbt && \
-	yum install -y graphviz-devel
-
+	yum install -y graphviz-devel && \
+	yum clean all
 
 RUN mkdir -p /usr/local/lib/python3.6/site-packages/ &&\ 
 	python3.6 -m easy_install pip && \
 	python3.6 -m pip install virtualenv pip && \
 	python3.6 -m virtualenv /opt/sparkcognition/venv
 
+RUN source /opt/sparkcognition/venv/bin/activate && \
+    pip install --no-cache-dir $PYTHON_PACKAGES
 
-#COPY ./build/gsutil.zip /usr/local/src
-#RUN cd /usr/local/src && unzip ./gsutil.zip && ln -s /usr/local/src/gsutil/gsutil /usr/local/bin/gsutil
+# Preload sbt dependencies
+COPY ./src/nlsak /opt/sparkcognition/nlsak
+RUN cd /opt/sparkcognition/nlsak/nltransform && sbt update
+
 

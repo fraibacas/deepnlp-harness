@@ -1,26 +1,32 @@
 FROM deepnlp_base:latest
 
-COPY ./src/nlsak /opt/sparkcognition/nlsak
+ARG ANSIBLE_TARBALL
 
-RUN /opt/sparkcognition/venv/bin/python -m pip install pyspark==2.3.1 && \
-	/opt/sparkcognition/venv/bin/python -m pip install numpy==1.14.1
+RUN echo "using ansible tarball ${ANSIBLE_TARBALL}" && \
+	mkdir -p /opt/sparkcognition/archive
 
-RUN /opt/sparkcognition/venv/bin/python -m pip install -e /opt/sparkcognition/nlsak/summa && \
-	/opt/sparkcognition/venv/bin/python -m pip install -e /opt/sparkcognition/nlsak/slogger && \
-	/opt/sparkcognition/venv/bin/python -m pip install -e /opt/sparkcognition/nlsak/scutil && \
-	/opt/sparkcognition/venv/bin/python -m pip install -e /opt/sparkcognition/nlsak/aclass && \
-	/opt/sparkcognition/venv/bin/python -m pip install -e /opt/sparkcognition/nlsak/nlyolo && \
-	/opt/sparkcognition/venv/bin/python -m pip install -e /opt/sparkcognition/nlsak/nlimages && \
-	/opt/sparkcognition/venv/bin/python -m pip install -e /opt/sparkcognition/nlsak/nlwordembeddings && \
-	/opt/sparkcognition/venv/bin/python -m pip install -e /opt/sparkcognition/nlsak/dma && \
-	/opt/sparkcognition/venv/bin/python -m pip install -e /opt/sparkcognition/nlsak/lingua_demo && \
-	/opt/sparkcognition/venv/bin/python -m pip install -e /opt/sparkcognition/nlsak/nlpytransform && \
-	/opt/sparkcognition/venv/bin/python -m pip install -e /opt/sparkcognition/nlsak/nlweb && \
-	/opt/sparkcognition/venv/bin/python -m pip install -e /opt/sparkcognition/nlsak/slogger && \
-	/opt/sparkcognition/venv/bin/python -m pip install -e /opt/sparkcognition/nlsak/scutil && \
-	/opt/sparkcognition/venv/bin/python -m pip install -e /opt/sparkcognition/nlsak/aclass && \
-	/opt/sparkcognition/venv/bin/python -m pip install -e /opt/sparkcognition/nlsak/nlwordembeddings && \
-	/opt/sparkcognition/venv/bin/python -m pip install -e /opt/sparkcognition/nlsak/lingua_demo && \
-	/opt/sparkcognition/venv/bin/python -m pip install -e /opt/sparkcognition/nlsak/nlpytransform && \
-	/opt/sparkcognition/venv/bin/python -m pip install -e /opt/sparkcognition/nlsak/nlscheduler && \
-	/opt/sparkcognition/venv/bin/python -m spacy download en
+COPY ./${ANSIBLE_TARBALL} /opt/sparkcognition/archive/.
+
+RUN echo "using ansible tarball ${ANSIBLE_TARBALL}" && \
+	cd /opt/sparkcognition/archive && \
+	tar -xvzf ${ANSIBLE_TARBALL} && \
+	rm -rf ${ANSIBLE_TARBALL}
+
+RUN source /opt/sparkcognition/venv/bin/activate && \
+	cd /opt/sparkcognition/archive/ansible && \
+	python -m easy_install eggs/summa-0.0.7-py3.6.egg  && \
+	python -m easy_install eggs/slogger-2.0.0-py3.6.egg && \
+	python -m easy_install eggs/scutil-2.0.2-py3.6.egg && \
+	python -m easy_install eggs/aclass-2.0.19-py3.6.egg && \
+	python -m easy_install eggs/nlyolo-1.0.0-py3.6.egg && \
+	python -m easy_install eggs/nlimages-1.0.0-py3.6.egg && \
+	python -m easy_install eggs/nlwordembedding-2.0.1-py3.6.egg && \
+	python -m easy_install eggs/dma-0.0.1-py3.6.egg && \
+	python -m easy_install eggs/lingua_demo-1.0.0-py3.6.egg && \
+	python -m easy_install eggs/nlpytransform-1.0.0-py3.6.egg && \
+	python -m easy_install eggs/nlweb-2.1.1-py3.6.egg && \
+	python -m easy_install eggs/slogger-2.0.0-py3.6.egg && \
+	python -m easy_install eggs/scutil-2.0.2-py3.6.egg && \
+	python -m easy_install eggs/nlscheduler-2.0.19-py3.6.egg && \
+	python -m spacy download en && \
+	rm -rf eggs

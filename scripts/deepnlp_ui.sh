@@ -8,6 +8,17 @@ EVER_BUILT_MAKER_FILE=${ARTIFACTS_FOLDER}/.deepnlp_ui_built
 
 #---------------------------------------------------------------
 
+ENVIRONMENT_TS="
+
+export const environment = {
+  production: false,
+  api_base_url: '',
+  filter_base_url: '',
+  pdf_base_url: ''
+};
+
+"
+
 function clean() {
 	pushd ${DEEPNLP_UI_FOLDER}
 	rm -rf node_modules package-lock.json yarn.lock
@@ -20,7 +31,10 @@ function build() {
 	clean
 	pushd ${DEEPNLP_UI_FOLDER}
 	yarn install || exit 1
+	cp src/environments/environment.ts /tmp
+	echo ${ENVIRONMENT_TS} > src/environments/environment.ts
 	yarn build || exit 1
+	cp /tmp/environment.ts src/environments/
 	touch ${EVER_BUILT_MAKER_FILE}
 	popd
 }

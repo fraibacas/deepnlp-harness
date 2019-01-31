@@ -1,0 +1,77 @@
+FROM python:3.6-alpine
+
+ARG ANSIBLE_TARBALL
+
+ENV PACKAGES="\
+    dumb-init \
+    musl \
+    libc6-compat \
+    build-base \
+    bash \
+    git \
+    freetype \
+    libgfortran \
+    libgcc \
+    libstdc++ \
+    openblas \
+    tcl \
+    libssl1.0 \
+    openjdk8-jre \
+"
+
+ENV PYTHON_PACKAGES="\
+    numpy==1.14.3 \
+    pyspark==2.3.1 \
+    scipy==1.1.0 \
+    scikit-learn==0.20.1 \
+    pandas==0.23.4 \
+" 
+
+#RUN apk add --no-cache --virtual build-dependencies python --update py-pip && \
+#    apk add --virtual build-runtime build-base python-dev openblas-dev freetype-dev pkgconfig gfortran && \
+#    ln -s /usr/include/locale.h /usr/include/xlocale.h && \
+#    pip install --upgrade pip && \
+#    pip install --no-cache-dir $PYTHON_PACKAGES && \
+#    apk del build-runtime && \
+#    apk add --no-cache --virtual build-dependencies $PACKAGES && \
+#    rm -rf /var/cache/apk/*
+
+
+
+#RUN apk add --no-cache --virtual build-dependencies python --update py-pip && \
+RUN apk add --virtual build-runtime build-base openblas-dev freetype-dev pkgconfig gfortran && \
+    ln -s /usr/include/locale.h /usr/include/xlocale.h && \
+    pip install --upgrade pip && \
+    pip install --no-cache-dir $PYTHON_PACKAGES && \
+    apk del build-runtime && \
+    apk add --no-cache --virtual build-dependencies $PACKAGES && \
+    rm -rf /var/cache/apk/*
+
+
+RUN echo "using ansible tarball ${ANSIBLE_TARBALL}" && \
+	mkdir -p /opt/sparkcognition/archive
+
+COPY ./${ANSIBLE_TARBALL} /opt/sparkcognition/archive/.
+
+RUN echo "using ansible tarball ${ANSIBLE_TARBALL}" && \
+ 	cd /opt/sparkcognition/archive && \
+ 	tar -xvzf ${ANSIBLE_TARBALL} && \
+ 	rm -rf ${ANSIBLE_TARBALL}
+
+RUN cd /opt/sparkcognition/archive/ansible && \
+	python -m easy_install eggs/summa-0.0.7-py3.6.egg  && \
+	python -m easy_install eggs/slogger-2.0.0-py3.6.egg && \
+	python -m easy_install eggs/scutil-2.0.2-py3.6.egg && \
+	python -m easy_install eggs/aclass-2.0.19-py3.6.egg && \
+	python -m easy_install eggs/nlyolo-1.0.0-py3.6.egg && \
+	python -m easy_install eggs/nlimages-1.0.0-py3.6.egg && \
+	python -m easy_install eggs/nlwordembedding-2.0.1-py3.6.egg && \
+	python -m easy_install eggs/dma-0.0.1-py3.6.egg && \
+	python -m easy_install eggs/lingua_demo-1.0.0-py3.6.egg && \
+	python -m easy_install eggs/nlpytransform-1.0.0-py3.6.egg && \
+	python -m easy_install eggs/nlweb-2.1.1-py3.6.egg && \
+	python -m easy_install eggs/slogger-2.0.0-py3.6.egg && \
+	python -m easy_install eggs/scutil-2.0.2-py3.6.egg && \
+	python -m easy_install eggs/nlscheduler-2.0.19-py3.6.egg && \
+	python -m spacy download en && \
+	rm -rf eggs
