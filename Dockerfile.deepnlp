@@ -1,0 +1,26 @@
+FROM deepnlp_base:latest
+
+COPY ./src/nlsak /opt/sparkcognition/nlsak
+
+RUN /opt/sparkcognition/venv/bin/python -m pip install pyspark==2.3.1 && \
+	/opt/sparkcognition/venv/bin/python -m pip install numpy==1.14.1
+
+RUN /opt/sparkcognition/venv/bin/python -m pip install -e /opt/sparkcognition/nlsak/summa && \
+	/opt/sparkcognition/venv/bin/python -m pip install -e /opt/sparkcognition/nlsak/slogger && \
+	/opt/sparkcognition/venv/bin/python -m pip install -e /opt/sparkcognition/nlsak/scutil && \
+	/opt/sparkcognition/venv/bin/python -m pip install -e /opt/sparkcognition/nlsak/aclass && \
+	/opt/sparkcognition/venv/bin/python -m pip install -e /opt/sparkcognition/nlsak/nlyolo && \
+	/opt/sparkcognition/venv/bin/python -m pip install -e /opt/sparkcognition/nlsak/nlimages && \
+	/opt/sparkcognition/venv/bin/python -m pip install -e /opt/sparkcognition/nlsak/nlwordembeddings && \
+	/opt/sparkcognition/venv/bin/python -m pip install -e /opt/sparkcognition/nlsak/dma && \
+	/opt/sparkcognition/venv/bin/python -m pip install -e /opt/sparkcognition/nlsak/lingua_demo && \
+	/opt/sparkcognition/venv/bin/python -m pip install -e /opt/sparkcognition/nlsak/nlpytransform && \
+	/opt/sparkcognition/venv/bin/python -m pip install -e /opt/sparkcognition/nlsak/nlweb && \
+	/opt/sparkcognition/venv/bin/python -m pip install -e /opt/sparkcognition/nlsak/slogger && \
+	/opt/sparkcognition/venv/bin/python -m pip install -e /opt/sparkcognition/nlsak/scutil && \
+	/opt/sparkcognition/venv/bin/python -m pip install -e /opt/sparkcognition/nlsak/aclass && \
+	/opt/sparkcognition/venv/bin/python -m pip install -e /opt/sparkcognition/nlsak/nlwordembeddings && \
+	/opt/sparkcognition/venv/bin/python -m pip install -e /opt/sparkcognition/nlsak/lingua_demo && \
+	/opt/sparkcognition/venv/bin/python -m pip install -e /opt/sparkcognition/nlsak/nlpytransform && \
+	/opt/sparkcognition/venv/bin/python -m pip install -e /opt/sparkcognition/nlsak/nlscheduler && \
+	/opt/sparkcognition/venv/bin/python -m spacy download en

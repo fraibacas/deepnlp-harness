@@ -29,6 +29,8 @@ function generate_artifact() {
 	pushd ${DEEPNLP_UI_FOLDER}
 	local git_sha=$(git rev-parse --short HEAD)
 	local git_branch=$(git symbolic-ref HEAD | sed -e "s/^refs\/heads\///")
+	git_branch=${git_branch// /_}
+	git_branch=${git_branch//[^a-zA-Z0-9_]/}
 	local tar_file=${ARTIFACTS_FOLDER}/deepnlp_ui-dist-${git_branch}-${git_sha}.tar.gz
 	tar -cvzf ${tar_file} dist
 	popd

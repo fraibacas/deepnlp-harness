@@ -1,0 +1,25 @@
+FROM centos:7
+
+
+RUN yum -y install https://mirror.pnl.gov/epel/7/x86_64/Packages/e/epel-release-7-11.noarch.rpm && \
+    curl https://bintray.com/sbt/rpm/rpm | tee /etc/yum.repos.d/bintray-sbt-rpm.repo && \
+	yum -y update
+
+
+RUN yum install -y sudo tar git libreoffice maven && \
+	yum install -y gcc gcc-c++ && \
+	yum install -y python36 python36-devel python36-setuptools && \
+	yum install -y java-1.8.0-openjdk && \
+	yum install -y sbt && \
+	yum install -y graphviz-devel
+
+
+RUN mkdir -p /usr/local/lib/python3.6/site-packages/ &&\ 
+	python3.6 -m easy_install pip && \
+	python3.6 -m pip install virtualenv pip && \
+	python3.6 -m virtualenv /opt/sparkcognition/venv
+
+
+#COPY ./build/gsutil.zip /usr/local/src
+#RUN cd /usr/local/src && unzip ./gsutil.zip && ln -s /usr/local/src/gsutil/gsutil /usr/local/bin/gsutil
+

@@ -1,0 +1,5 @@
+FROM deepnlp_base:latest
+
+COPY ./src/nlsak /opt/sparkcognition/nlsak
+
+

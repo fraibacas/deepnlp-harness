@@ -1,10 +1,10 @@
 
-DOCKER_COMPOSE         := /usr/local/bin/docker-compose
-DOCKER_COMPOSE_BASE    := $(DOCKER_COMPOSE)
-DC_RUN_PARAMS          := --force-recreate
-DC_BUILD_PARAMS        := --build --force-recreate
-UI_SERVICE_NAME        := deepnlp-ui
-
+DOCKER_COMPOSE              := /usr/local/bin/docker-compose
+DOCKER_COMPOSE_BASE         := $(DOCKER_COMPOSE)
+DC_RUN_PARAMS               := --force-recreate
+DC_BUILD_PARAMS             := --build --force-recreate
+UI_SERVICE_NAME             := deepnlp-ui
+DEEPNLP_BUILD_SERVICE_NAME  := deepnlp-build
 
 .PHONY: default
 default: run
@@ -23,6 +23,16 @@ clean: $(DOCKER_COMPOSE)
 build: $(DOCKER_COMPOSE)
 	@echo "building DeepNLP UI image and local files"
 	DC_DEEPNLP_UI_ACTION=build $(DOCKER_COMPOSE_BASE) -f docker-compose.yaml up $(DC_BUILD_PARAMS) $(UI_SERVICE_NAME)
+
+.PHONY: ansible
+ansible: $(DOCKER_COMPOSE)
+	@echo "building DeepNLP ansible tar from the current source"
+	DC_DEEPNLP_ACTION=ansible $(DOCKER_COMPOSE_BASE) -f docker-compose.yaml up ${DC_BUILD_PARAMS} $(DEEPNLP_BUILD_SERVICE_NAME)
+
+.PHONY: ansible-prod
+ansible-prod: $(DOCKER_COMPOSE)
+	@echo "building DeepNLP ansible tar from the current source ofuscating jars"
+	DC_DEEPNLP_ACTION=ansible-prod $(DOCKER_COMPOSE_BASE) -f docker-compose.yaml up ${DC_BUILD_PARAMS} $(DEEPNLP_BUILD_SERVICE_NAME)
 
 $(DOCKER_COMPOSE):
 	@if [ ! -w $(@) ]; then echo 'docker-compose not found. Please install it'; exit 2; else true; fi

@@ -1,7 +1,13 @@
 
 src/*
 artifacts/*
+build/*
+volumes/*
 
-!src/.gitkeep 
+!src/.gitkeep
+!artifacts/.gitkeep
+!build/.gitkeep
+!volumes/.gitkeep
 
 .idea
+.DS_Store

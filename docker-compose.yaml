@@ -1,5 +1,8 @@
 version: "3.3"
 services:
+  #-----------------------------------------------
+  #           deepnlp-ui (build and run)
+  #-----------------------------------------------
   deepnlp-ui:
     build:
       dockerfile: ./Dockerfile.deepnlp_ui
@@ -14,3 +17,90 @@ services:
       - /bin/bash
       - -c 
       - "/opt/sparkcognition/scripts/deepnlp_ui.sh ${DC_DEEPNLP_UI_ACTION}"
+  #-----------------------------------------------
+  #          deepnlp build
+  #-----------------------------------------------
+  deepnlp-build:
+    build:
+      dockerfile: ./Dockerfile.deepnlp_build
+      context: .
+    volumes:
+      - ./scripts:/opt/sparkcognition/scripts:ro
+      - ./artifacts:/opt/sparkcognition/artifacts:rw
+      - ./build:/build
+    entrypoint:
+      - /bin/bash
+      - -c
+      - "/opt/sparkcognition/scripts/deepnlp.sh ${DC_DEEPNLP_ACTION}"
+    environment:
+      PROGUARD_JAR: "/build/proguard.jar"
+      DEEP_BUILD_EGGS: "yes"
+      DEEP_BUILD_JARS: "yes"
+  #-----------------------------------------------
+  #                 deepnlp
+  #-----------------------------------------------
+  deepnlp:
+    build:
+      dockerfile: ./Dockerfile.deepnlp
+      context: .
+    volumes:
+      - ./scripts:/opt/sparkcognition/scripts:ro
+      - ./src/nlsak:/opt/sparkcognition/nlsak:rw
+      - ./artifacts:/opt/sparkcognition/artifacts:rw
+    ports:
+      - "8080:8080"
+    entrypoint:
+      # -  python
+      # - -c
+      # - "import time; time.sleep(3000)"
+      - /bin/bash
+      - -c
+      - "/opt/sparkcognition/scripts/start_nlweb.sh"
+    environment:
+      APP_SETTINGS: "nlweb.config.DevelopmentConfig"
+      SOLR_COLLECTION: "deepnlp"
+      SOLR_HOST: solr
+      ZK_HOSTSTRING: solr:9983
+      PDF_SERVER_PORT: localhost
+      PDF_SERVER_HOST: 8889
+      NLWEB_PORT: 8080
+      DATABASE_URL: postgresql://deepnlp@postgres:5432/deepnlp
+      TRANSFORM_JARS: /opt/sparkcognition
+      DATE_QUERY_CONFIG: /opt/sparkcognition/nlsak/nlweb/conf/date_query_config.txt
+      ROUTES_PLUGIN_MODULES: aclass.routes,nlwordembeddings.routes
+      PYSPARK_GATEWAY_SECRET: 
+      SLOGGER_CONF: /opt/sparkcognition/logging.conf
+      PYTHONPATH: 
+  #-----------------------------------------------
+  #                  POSTGRES
+  #-----------------------------------------------
+  postgres:
+    image: postgres:11
+    #command: -D /opt/sparkcognition/volumes/postgres
+    volumes:
+      - ./volumes/postgres:/usr/local/var/postgres/data
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: deepnlp
+      POSTGRES_DB: deepnlp
+  #-----------------------------------------------
+  #                  SOLR
+  #-----------------------------------------------
+  solr:
+    image: solr:7.5.0
+    entrypoint:
+      - docker-entrypoint.sh
+      - solr
+      - start
+      - -c
+      - -f
+      #- -Dbootstrap_confdir=/opt/solr/server/solr/configsets/deepnlp/conf
+      #- -Dcollection.configName=deepnlp
+    ports:
+      - "8983:8983"
+      - "9983:9983"
+    volumes:
+      #- ./conf/solr/configsets:/opt/solr/server/solr/configsets
+      - ./volumes/solr/deepnlp_data:/opt/solr/server/solr/deepnlp_shard1_replica_n1
+      - ./volumes/solr/zoo_data:/opt/solr/server/solr/zoo_data
