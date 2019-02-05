@@ -29,6 +29,7 @@ function build_components() {
 }
 
 function generate_ansible_artifact() {
+  local prod_flag=$1
   echo "generating ansible artifact..."
   pushd ${DEEPNLP_FOLDER}
   local timestamp=$(date +%Y-%m-%d)
@@ -36,7 +37,7 @@ function generate_ansible_artifact() {
   local git_branch=$(git symbolic-ref HEAD | sed -e "s/^refs\/heads\///")
   git_branch=${git_branch// /_}
   git_branch=${git_branch//[^a-zA-Z0-9_]/}
-  local tar_file=${ARTIFACTS_FOLDER}/deepnlp-ansible-${timestamp}-${git_branch}-${git_sha}.tar.gz
+  local tar_file=${ARTIFACTS_FOLDER}/deepnlp-ansible${prod_flag}-${timestamp}-${git_branch}-${git_sha}.tar.gz
   tar -cvzf ${tar_file} ansible
   popd
   echo "ansible tar generated! ${tar_file}"
@@ -51,6 +52,28 @@ function copy_base_artifacts() {
   cp ${BASE_ARTIFACTS_FOLDER}/spark-solr-3.5.5-shaded.jar ${ANSIBLE_FOLDER}/jars/spark-solr-3.5.5-shaded.jar
   cp ${BASE_ARTIFACTS_FOLDER}/solr-7.4.0.tgz ${ANSIBLE_FOLDER}/tarballs/solr-7.4.0.tgz
   cp ${BASE_ARTIFACTS_FOLDER}/hdf5-1.10.4.tar.gz ${ANSIBLE_FOLDER}/tarballs/hdf5-1.10.4.tar.gz
+  cp ${BASE_ARTIFACTS_FOLDER}/pytextrank-1.1.0-py3.6.egg ${ANSIBLE_FOLDER}/tarballs/pytextrank-1.1.0-py3.6.egg
+}
+
+function update_proguard_config() {
+  pushd ${DEEPNLP_FOLDER}/conf
+  local rt="-libraryjars /usr/lib/jvm/jre-1.8.0/lib/rt.jar"
+  local jce="-libraryjars /usr/lib/jvm/jre-1.8.0/lib/jce.jar"
+  local bad_avro='/.ivy2/cache/org.apache.avro/avro/jars/avro-1.8.0.jar'
+  local good_avro='/.ivy2/cache/org.apache.avro/avro/bundles/avro-1.8.0.jar'
+  local bad_tika='/.ivy2/cache/org.apache.tika/tika-core/jars/tika-core-1.14.jar'
+  local good_tika='/.ivy2/cache/org.apache.tika/tika-core/bundles/tika-core-1.14.jar'
+
+  sed -i "s@${bad_avro}@${good_avro}@g" options.pro
+  sed -i "s@${bad_tika}@${good_tika}@g" options.pro
+
+  for file in nlpdf.pro options.pro; do
+    sed -i "s@-libraryjars .*rt.jar@${rt}@g" ${file}
+    sed -i "s@-libraryjars .*jce.jar@${jce}@g" ${file}
+    sed -i "s@/Users/jbronson@/root@g" ${file}
+    sed -i "s@/Users/sparkdemo@/root@g" ${file}
+  done
+  popd
 }
 
 function clean() {
@@ -73,13 +96,14 @@ case "$1" in
     clean
     copy_base_artifacts
     build_components "no"
-    generate_ansible_artifact
+    generate_ansible_artifact ""
     ;;
   "ansible-prod")
     clean
     copy_base_artifacts
+    update_proguard_config
     build_components "yes"
-    generate_ansible_artifact
+    generate_ansible_artifact "-prod"
     ;;
   *)
     echo "Unknown option <$1>. Please tell me what to do :/"

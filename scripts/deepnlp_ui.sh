@@ -19,23 +19,32 @@ export const environment = {
 
 "
 
-function clean() {
+function clean_dev_image() {
 	pushd ${DEEPNLP_UI_FOLDER}
 	rm -rf node_modules package-lock.json yarn.lock
 	rm -rf dist/* ${EVER_BUILT_MAKER_FILE}
 	popd
 }
 
-function build() {
+function build_dev_image() {
+	# in the dev image the code is mounted from the host into the container
 	echo "building deepnlp-ui artifacts..."
-	clean
+	clean_dev_image
 	pushd ${DEEPNLP_UI_FOLDER}
 	yarn install || exit 1
-	cp src/environments/environment.ts /tmp
+	touch ${EVER_BUILT_MAKER_FILE}
+	popd
+}
+
+function build() {
+	# This is meant to run in a container where the ui code has been copied in (not mounted). 
+	echo "building deepnlp-ui artifacts..."
+	pushd ${DEEPNLP_UI_FOLDER}
+	rm -rf dist/*
+	#yarn upgrade || yarn install || exit 1
+	yarn install || exit 1
 	echo ${ENVIRONMENT_TS} > src/environments/environment.ts
 	yarn build || exit 1
-	cp /tmp/environment.ts src/environments/
-	touch ${EVER_BUILT_MAKER_FILE}
 	popd
 }
 
@@ -53,9 +62,10 @@ function generate_artifact() {
 function run() {
 	pushd ${DEEPNLP_UI_FOLDER}
 	if [ ! -f ${EVER_BUILT_MAKER_FILE} ]; then
-		build
+		build_dev_image
 	fi
 	echo "starting deepnlp-ui..."
+	yarn install || exit 1
 	/usr/bin/yarn serve
 	popd
 }
@@ -86,7 +96,7 @@ case "$1" in
 	run
     ;;
   "clean")
-	clean
+	clean_dev_image
     ;;
   *)
     echo "Unknown option <$1>. Please tell me what to do :/"

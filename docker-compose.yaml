@@ -1,9 +1,9 @@
 version: "3.3"
 services:
   #-----------------------------------------------
-  #           deepnlp-ui (build and run)
+  #           deepnlp-ui run
   #-----------------------------------------------
-  deepnlp-ui:
+  deepnlp-ui-run:
     build:
       dockerfile: ./Dockerfile.deepnlp_ui
       context: .
@@ -17,6 +17,20 @@ services:
       - /bin/bash
       - -c 
       - "/opt/sparkcognition/scripts/deepnlp_ui.sh ${DC_DEEPNLP_UI_ACTION}"
+  #-----------------------------------------------
+  #           deepnlp-ui build
+  #-----------------------------------------------
+  deepnlp-ui-build:
+    build:
+      dockerfile: ./Dockerfile.deepnlp_ui_build
+      context: .
+    volumes:
+      - ./scripts:/opt/sparkcognition/scripts:ro
+      - ./artifacts:/opt/sparkcognition/artifacts:rw
+    entrypoint:
+      - /bin/bash
+      - -c 
+      - "/opt/sparkcognition/scripts/deepnlp_ui.sh build"
   #-----------------------------------------------
   #          deepnlp build
   #-----------------------------------------------

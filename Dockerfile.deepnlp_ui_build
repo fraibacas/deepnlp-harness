@@ -1,0 +1,6 @@
+FROM deepnlp_ui_base:latest
+
+COPY ./src/deepnlp-ui /opt/sparkcognition/deepnlp-ui
+
+RUN cp /opt/sparkcognition/deepnlp-ui-resources/yarn.lock /opt/sparkcognition/deepnlp-ui/yarn.lock  && \
+    cp -r /opt/sparkcognition/deepnlp-ui-resources/node_modules /opt/sparkcognition/deepnlp-ui/. 
