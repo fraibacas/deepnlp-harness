@@ -78,5 +78,8 @@ ui_base_image: $(DOCKER_COMPOSE)
 	echo "building DeepNLP UI base image...";\
 	docker build --no-cache -t ${DEEPNLP_UI_BASE_IMG} -f Dockerfile.deepnlp_ui_base .;\
 
+.PHONY: base_images
+base_images: $(DOCKER_COMPOSE) base_image ui_base_image
+
 $(DOCKER_COMPOSE):
 	@if [ ! -w $(@) ]; then echo 'docker-compose not found. Please install it'; exit 2; else true; fi
